@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Corporate Headquarters — Global Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<style>
+html,body,#map{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif}
+#map{background:#dbe7ef}
+.panel{position:absolute;z-index:1000;top:14px;left:14px;width:330px;max-height:calc(100vh - 28px);
+background:rgba(255,255,255,.96);border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.25);overflow:hidden}
+.header{padding:14px 16px 10px;border-bottom:1px solid #ddd}
+h1{font-size:17px;margin:0 0 4px} .sub{font-size:12px;color:#555}
+.controls{padding:10px 12px;border-bottom:1px solid #ddd}
+input,select{width:100%;box-sizing:border-box;padding:8px;margin-bottom:7px;border:1px solid #bbb;border-radius:6px}
+.stats{font-size:12px;color:#444;margin:3px 0 7px}
+.legend{display:flex;flex-wrap:wrap;gap:5px 10px;font-size:11px;max-height:90px;overflow:auto}
+.legend span{display:inline-flex;align-items:center;gap:4px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.list{max-height:calc(100vh - 230px);overflow:auto}
+.item{padding:7px 12px;border-bottom:1px solid #eee;cursor:pointer;font-size:12px}
+.item:hover{background:#f3f6f8}
+.item b{font-size:12px} .item small{display:block;color:#666;margin-top:2px}
+.popup h3{margin:0 0 5px;font-size:15px} .popup p{margin:3px 0;font-size:12px}
+.leaflet-control-layers{font-size:12px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel">
+  <div class="header">
+    <h1>Global Corporate / Institutional HQ Map</h1>
+    <div class="sub">48 listed organizations • headquarters supplied in the source list</div>
+  </div>
+  <div class="controls">
+    <input id="search" placeholder="Search organization or city…">
+    <select id="country"><option value="">All countries</option></select>
+    <div class="stats" id="stats"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <div class="list" id="list"></div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+const places = [{"country": "Belgium", "name": "Euronav", "city": "Antwerp", "lat": 51.2194, "lon": 4.4025, "color": "#e74c3c"}, {"country": "Cyprus", "name": "Frontline PLC", "city": "Limassol", "lat": 34.7071, "lon": 33.0226, "color": "#8e44ad"}, {"country": "Denmark", "name": "Maersk", "city": "Copenhagen", "lat": 55.6761, "lon": 12.5683, "color": "#2980b9"}, {"country": "France", "name": "Exail Technologies", "city": "Paris", "lat": 48.8566, "lon": 2.3522, "color": "#16a085"}, {"country": "Germany", "name": "Hapag-Lloyd", "city": "Hamburg", "lat": 53.5511, "lon": 9.9937, "color": "#d35400"}, {"country": "Israel", "name": "Cellebrite", "city": "Petah Tikva", "lat": 32.084, "lon": 34.8878, "color": "#2c3e50"}, {"country": "Israel", "name": "Elbit Systems", "city": "Haifa", "lat": 32.794, "lon": 34.9896, "color": "#2c3e50"}, {"country": "Israel", "name": "Israel Aerospace Industries (IAI)", "city": "Lod", "lat": 31.9513, "lon": 34.8953, "color": "#2c3e50"}, {"country": "Israel", "name": "Rafael Advanced Defense Systems", "city": "Haifa", "lat": 32.794, "lon": 34.9896, "color": "#2c3e50"}, {"country": "Israel", "name": "Windward", "city": "Tel Aviv", "lat": 32.0853, "lon": 34.7818, "color": "#2c3e50"}, {"country": "Japan", "name": "Eneos Holdings", "city": "Tokyo", "lat": 35.6762, "lon": 139.6503, "color": "#c0392b"}, {"country": "Norway", "name": "Gard", "city": "Arendal", "lat": 58.4617, "lon": 8.7724, "color": "#1abc9c"}, {"country": "Singapore", "name": "Cyfirma", "city": "Singapore", "lat": 1.3521, "lon": 103.8198, "color": "#f39c12"}, {"country": "Switzerland", "name": "Chubb", "city": "Zurich", "lat": 47.3769, "lon": 8.5417, "color": "#7f8c8d"}, {"country": "United Kingdom", "name": "BAE Systems", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "International Group of P&I Clubs", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "Lloyd’s of London", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "Lloyd’s Market Association", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "The UK P&I Club", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United States", "name": "AM General", "city": "South Bend, Indiana", "lat": 41.6764, "lon": -86.252, "color": "#1f618d"}, {"country": "United States", "name": "Alphabet (Google)", "city": "Mountain View, California", "lat": 37.3861, "lon": -122.0839, "color": "#1f618d"}, {"country": "United States", "name": "Amazon Web Services (AWS)", "city": "Seattle, Washington", "lat": 47.6062, "lon": -122.3321, "color": "#1f618d"}, {"country": "United States", "name": "Bank of America", "city": "Charlotte, North Carolina", "lat": 35.2271, "lon": -80.8431, "color": "#1f618d"}, {"country": "United States", "name": "BlackSky", "city": "Herndon, Virginia", "lat": 38.9696, "lon": -77.3861, "color": "#1f618d"}, {"country": "United States", "name": "Boeing", "city": "Arlington, Virginia", "lat": 38.8816, "lon": -77.091, "color": "#1f618d"}, {"country": "United States", "name": "Capella Space", "city": "San Francisco, California", "lat": 37.7749, "lon": -122.4194, "color": "#1f618d"}, {"country": "United States", "name": "Caterpillar", "city": "Irving, Texas", "lat": 32.814, "lon": -96.9489, "color": "#1f618d"}, {"country": "United States", "name": "Chevron", "city": "Houston, Texas", "lat": 29.7604, "lon": -95.3698, "color": "#1f618d"}, {"country": "United States", "name": "Cisco Systems", "city": "San Jose, California", "lat": 37.3382, "lon": -121.8863, "color": "#1f618d"}, {"country": "United States", "name": "Citigroup", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "CrowdStrike", "city": "Austin, Texas", "lat": 30.2672, "lon": -97.7431, "color": "#1f618d"}, {"country": "United States", "name": "ExxonMobil", "city": "Spring, Texas", "lat": 30.0799, "lon": -95.417, "color": "#1f618d"}, {"country": "United States", "name": "General Dynamics", "city": "Reston, Virginia", "lat": 38.9586, "lon": -77.357, "color": "#1f618d"}, {"country": "United States", "name": "Goldman Sachs", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "Honeywell Aerospace", "city": "Charlotte, North Carolina", "lat": 35.2271, "lon": -80.8431, "color": "#1f618d"}, {"country": "United States", "name": "IBM", "city": "Armonk, New York", "lat": 41.1265, "lon": -73.714, "color": "#1f618d"}, {"country": "United States", "name": "Intel", "city": "Santa Clara, California", "lat": 37.3541, "lon": -121.9552, "color": "#1f618d"}, {"country": "United States", "name": "International Seaways", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "JPMorgan Chase", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "L3Harris Technologies", "city": "Melbourne, Florida", "lat": 28.0836, "lon": -80.6081, "color": "#1f618d"}, {"country": "United States", "name": "Lockheed Martin", "city": "Bethesda, Maryland", "lat": 38.9847, "lon": -77.0947, "color": "#1f618d"}, {"country": "United States", "name": "Mandiant", "city": "Reston, Virginia", "lat": 38.9586, "lon": -77.357, "color": "#1f618d"}, {"country": "United States", "name": "Maxar Technologies", "city": "Westminster, Colorado", "lat": 39.8367, "lon": -105.0372, "color": "#1f618d"}, {"country": "United States", "name": "Microsoft", "city": "Redmond, Washington", "lat": 47.674, "lon": -122.1215, "color": "#1f618d"}, {"country": "United States", "name": "Morgan Stanley", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "Northrop Grumman", "city": "Falls Church, Virginia", "lat": 38.8823, "lon": -77.1711, "color": "#1f618d"}, {"country": "United States", "name": "Palantir Technologies", "city": "Denver, Colorado", "lat": 39.7392, "lon": -104.9903, "color": "#1f618d"}, {"country": "United States", "name": "Planet Labs", "city": "San Francisco, California", "lat": 37.7749, "lon": -122.4194, "color": "#1f618d"}, {"country": "United States", "name": "RTX (Raytheon) Corporation", "city": "Arlington, Virginia", "lat": 38.8816, "lon": -77.091, "color": "#1f618d"}, {"country": "United States", "name": "U.S. International Development Finance Corporation", "city": "Washington, D.C.", "lat": 38.9072, "lon": -77.0369, "color": "#1f618d"}, {"country": "United States", "name": "The Federal Reserve", "city": "Washington, D.C.", "lat": 38.9072, "lon": -77.0369, "color": "#1f618d"}];
+const map = L.map('map', {worldCopyJump:true, minZoom:2}).setView([25,20], 2);
+
+const standard = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+});
+const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 18, attribution: 'Tiles &copy; Esri'
+});
+const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+  maxZoom: 19, attribution: '&copy; OpenStreetMap & CARTO'
+});
+standard.addTo(map);
+L.control.layers({"Street map":standard,"Satellite":satellite}, null, {collapsed:true}).addTo(map);
+
+const clusters = L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:38});
+const markers = [];
+const byId = new Map();
+
+places.forEach((p,i) => {
+  const icon = L.divIcon({
+    className:'',
+    html:`<div style="width:16px;height:16px;border-radius:50%;background:${p.color};border:2px solid white;box-shadow:0 1px 4px #333"></div>`,
+    iconSize:[20,20], iconAnchor:[10,10]
+  });
+  const m = L.marker([p.lat,p.lon],{icon});
+  m.bindPopup(`<div class="popup"><h3>${p.name}</h3><p><b>${p.city}</b></p><p>${p.country}</p></div>`);
+  m._p = p; m._i=i; markers.push(m); byId.set(i,m); clusters.addLayer(m);
+});
+map.addLayer(clusters);
+
+const countries = [...new Set(places.map(p=>p.country))].sort();
+const countrySel=document.getElementById('country');
+countries.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySel.appendChild(o);});
+const legend=document.getElementById('legend');
+countries.forEach(c=>{const s=document.createElement('span');s.innerHTML=`<i class="dot" style="background:${places.find(p=>p.country===c).color}"></i>${c}`;legend.appendChild(s);});
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase().trim();
+  const c=countrySel.value;
+  const filtered=places.filter(p=>(!q || (p.name+' '+p.city+' '+p.country).toLowerCase().includes(q)) && (!c || p.country===c));
+  clusters.clearLayers();
+  filtered.forEach(p=>clusters.addLayer(byId.get(places.indexOf(p))));
+  document.getElementById('stats').textContent=`Showing ${filtered.length} of ${places.length} organizations`;
+  const list=document.getElementById('list'); list.innerHTML='';
+  filtered.forEach(p=>{
+    const div=document.createElement('div'); div.className='item';
+    div.innerHTML=`<b>${p.name}</b><small>${p.city} · ${p.country}</small>`;
+    div.onclick=()=>{map.setView([p.lat,p.lon],Math.max(map.getZoom(),5));byId.get(places.indexOf(p)).openPopup();};
+    list.appendChild(div);
+  });
+}
+document.getElementById('search').addEventListener('input',render);
+countrySel.addEventListener('change',render);
+render();
+
+// Add a subtle label overlay when zoomed in.
+map.on('zoomend',()=>{ if(map.getZoom()>=5) labels.addTo(map); else map.removeLayer(labels); });
+</script>
+</body>
+</html>
