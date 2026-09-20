@@ -1,109 +1,39 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Corporate Headquarters — Global Map</title>
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ukraine Defense-Tech & Investment Network</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <style>
-html,body,#map{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif}
-#map{background:#dbe7ef}
-.panel{position:absolute;z-index:1000;top:14px;left:14px;width:330px;max-height:calc(100vh - 28px);
-background:rgba(255,255,255,.96);border-radius:10px;box-shadow:0 2px 14px rgba(0,0,0,.25);overflow:hidden}
-.header{padding:14px 16px 10px;border-bottom:1px solid #ddd}
-h1{font-size:17px;margin:0 0 4px} .sub{font-size:12px;color:#555}
-.controls{padding:10px 12px;border-bottom:1px solid #ddd}
-input,select{width:100%;box-sizing:border-box;padding:8px;margin-bottom:7px;border:1px solid #bbb;border-radius:6px}
-.stats{font-size:12px;color:#444;margin:3px 0 7px}
-.legend{display:flex;flex-wrap:wrap;gap:5px 10px;font-size:11px;max-height:90px;overflow:auto}
-.legend span{display:inline-flex;align-items:center;gap:4px}
-.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
-.list{max-height:calc(100vh - 230px);overflow:auto}
-.item{padding:7px 12px;border-bottom:1px solid #eee;cursor:pointer;font-size:12px}
-.item:hover{background:#f3f6f8}
-.item b{font-size:12px} .item small{display:block;color:#666;margin-top:2px}
-.popup h3{margin:0 0 5px;font-size:15px} .popup p{margin:3px 0;font-size:12px}
-.leaflet-control-layers{font-size:12px}
-</style>
-</head>
-<body>
-<div id="map"></div>
-<div class="panel">
-  <div class="header">
-    <h1>Global Corporate / Institutional HQ Map</h1>
-    <div class="sub">48 listed organizations • headquarters supplied in the source list</div>
-  </div>
-  <div class="controls">
-    <input id="search" placeholder="Search organization or city…">
-    <select id="country"><option value="">All countries</option></select>
-    <div class="stats" id="stats"></div>
-    <div class="legend" id="legend"></div>
-  </div>
-  <div class="list" id="list"></div>
-</div>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+html,body,#map{height:100%;margin:0;font-family:Arial,sans-serif}#map{background:#dbe7ef}
+.panel{position:absolute;z-index:1000;top:14px;left:14px;width:370px;max-height:calc(100vh - 28px);background:#fff;opacity:.97;border-radius:10px;box-shadow:0 2px 14px #777;overflow:hidden}
+.header{padding:14px 16px;border-bottom:1px solid #ddd}h1{font-size:17px;margin:0 0 5px}.sub{font-size:11px;color:#555;line-height:1.4}
+.controls{padding:10px 12px;border-bottom:1px solid #ddd}input,select{width:100%;box-sizing:border-box;padding:8px;margin-bottom:7px;border:1px solid #bbb;border-radius:6px}
+.stats{font-size:12px;color:#444;margin:3px 0 7px}.legend{display:flex;flex-wrap:wrap;gap:5px 9px;font-size:10px;max-height:75px;overflow:auto}.legend span{display:inline-flex;align-items:center;gap:4px}.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.list{max-height:calc(100vh - 245px);overflow:auto}.item{padding:7px 12px;border-bottom:1px solid #eee;cursor:pointer;font-size:12px}.item:hover{background:#f3f6f8}.item b{font-size:12px}.item small{display:block;color:#666;margin-top:2px}
+.popup h3{margin:0 0 5px;font-size:15px}.popup p{margin:4px 0;font-size:12px;line-height:1.35}.badge{display:inline-block;padding:2px 5px;border-radius:4px;background:#eee;font-size:10px}.note{padding:8px 12px;background:#fafafa;border-top:1px solid #ddd;font-size:10px;color:#555;line-height:1.35}
+</style></head><body><div id="map"></div>
+<div class="panel"><div class="header"><h1>Ukraine Defense-Tech & Investment Network</h1>
+<div class="sub">Publicly documented organizations, investors and relationships from the supplied list. The map does not establish responsibility for particular military operations.</div></div>
+<div class="controls"><input id="search" placeholder="Search organization, person, city…"><select id="cat"><option value="">All categories</option></select>
+<select id="status"><option value="">All evidence statuses</option><option>Documented</option><option>Documented association</option><option>Documented corporate association</option><option>Documented service; causal claim unverified</option><option>Needs narrower sourcing</option></select>
+<div class="stats" id="stats"></div><div class="legend" id="legend"></div></div><div class="list" id="list"></div>
+<div class="note">Locations are approximate HQ/office coordinates. “Needs narrower sourcing” means the supplied connection was not specific enough to verify as stated. Each marker contains its source.</div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
-const places = [{"country": "Belgium", "name": "Euronav", "city": "Antwerp", "lat": 51.2194, "lon": 4.4025, "color": "#e74c3c"}, {"country": "Cyprus", "name": "Frontline PLC", "city": "Limassol", "lat": 34.7071, "lon": 33.0226, "color": "#8e44ad"}, {"country": "Denmark", "name": "Maersk", "city": "Copenhagen", "lat": 55.6761, "lon": 12.5683, "color": "#2980b9"}, {"country": "France", "name": "Exail Technologies", "city": "Paris", "lat": 48.8566, "lon": 2.3522, "color": "#16a085"}, {"country": "Germany", "name": "Hapag-Lloyd", "city": "Hamburg", "lat": 53.5511, "lon": 9.9937, "color": "#d35400"}, {"country": "Israel", "name": "Cellebrite", "city": "Petah Tikva", "lat": 32.084, "lon": 34.8878, "color": "#2c3e50"}, {"country": "Israel", "name": "Elbit Systems", "city": "Haifa", "lat": 32.794, "lon": 34.9896, "color": "#2c3e50"}, {"country": "Israel", "name": "Israel Aerospace Industries (IAI)", "city": "Lod", "lat": 31.9513, "lon": 34.8953, "color": "#2c3e50"}, {"country": "Israel", "name": "Rafael Advanced Defense Systems", "city": "Haifa", "lat": 32.794, "lon": 34.9896, "color": "#2c3e50"}, {"country": "Israel", "name": "Windward", "city": "Tel Aviv", "lat": 32.0853, "lon": 34.7818, "color": "#2c3e50"}, {"country": "Japan", "name": "Eneos Holdings", "city": "Tokyo", "lat": 35.6762, "lon": 139.6503, "color": "#c0392b"}, {"country": "Norway", "name": "Gard", "city": "Arendal", "lat": 58.4617, "lon": 8.7724, "color": "#1abc9c"}, {"country": "Singapore", "name": "Cyfirma", "city": "Singapore", "lat": 1.3521, "lon": 103.8198, "color": "#f39c12"}, {"country": "Switzerland", "name": "Chubb", "city": "Zurich", "lat": 47.3769, "lon": 8.5417, "color": "#7f8c8d"}, {"country": "United Kingdom", "name": "BAE Systems", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "International Group of P&I Clubs", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "Lloyd’s of London", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "Lloyd’s Market Association", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United Kingdom", "name": "The UK P&I Club", "city": "London", "lat": 51.5074, "lon": -0.1278, "color": "#34495e"}, {"country": "United States", "name": "AM General", "city": "South Bend, Indiana", "lat": 41.6764, "lon": -86.252, "color": "#1f618d"}, {"country": "United States", "name": "Alphabet (Google)", "city": "Mountain View, California", "lat": 37.3861, "lon": -122.0839, "color": "#1f618d"}, {"country": "United States", "name": "Amazon Web Services (AWS)", "city": "Seattle, Washington", "lat": 47.6062, "lon": -122.3321, "color": "#1f618d"}, {"country": "United States", "name": "Bank of America", "city": "Charlotte, North Carolina", "lat": 35.2271, "lon": -80.8431, "color": "#1f618d"}, {"country": "United States", "name": "BlackSky", "city": "Herndon, Virginia", "lat": 38.9696, "lon": -77.3861, "color": "#1f618d"}, {"country": "United States", "name": "Boeing", "city": "Arlington, Virginia", "lat": 38.8816, "lon": -77.091, "color": "#1f618d"}, {"country": "United States", "name": "Capella Space", "city": "San Francisco, California", "lat": 37.7749, "lon": -122.4194, "color": "#1f618d"}, {"country": "United States", "name": "Caterpillar", "city": "Irving, Texas", "lat": 32.814, "lon": -96.9489, "color": "#1f618d"}, {"country": "United States", "name": "Chevron", "city": "Houston, Texas", "lat": 29.7604, "lon": -95.3698, "color": "#1f618d"}, {"country": "United States", "name": "Cisco Systems", "city": "San Jose, California", "lat": 37.3382, "lon": -121.8863, "color": "#1f618d"}, {"country": "United States", "name": "Citigroup", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "CrowdStrike", "city": "Austin, Texas", "lat": 30.2672, "lon": -97.7431, "color": "#1f618d"}, {"country": "United States", "name": "ExxonMobil", "city": "Spring, Texas", "lat": 30.0799, "lon": -95.417, "color": "#1f618d"}, {"country": "United States", "name": "General Dynamics", "city": "Reston, Virginia", "lat": 38.9586, "lon": -77.357, "color": "#1f618d"}, {"country": "United States", "name": "Goldman Sachs", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "Honeywell Aerospace", "city": "Charlotte, North Carolina", "lat": 35.2271, "lon": -80.8431, "color": "#1f618d"}, {"country": "United States", "name": "IBM", "city": "Armonk, New York", "lat": 41.1265, "lon": -73.714, "color": "#1f618d"}, {"country": "United States", "name": "Intel", "city": "Santa Clara, California", "lat": 37.3541, "lon": -121.9552, "color": "#1f618d"}, {"country": "United States", "name": "International Seaways", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "JPMorgan Chase", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "L3Harris Technologies", "city": "Melbourne, Florida", "lat": 28.0836, "lon": -80.6081, "color": "#1f618d"}, {"country": "United States", "name": "Lockheed Martin", "city": "Bethesda, Maryland", "lat": 38.9847, "lon": -77.0947, "color": "#1f618d"}, {"country": "United States", "name": "Mandiant", "city": "Reston, Virginia", "lat": 38.9586, "lon": -77.357, "color": "#1f618d"}, {"country": "United States", "name": "Maxar Technologies", "city": "Westminster, Colorado", "lat": 39.8367, "lon": -105.0372, "color": "#1f618d"}, {"country": "United States", "name": "Microsoft", "city": "Redmond, Washington", "lat": 47.674, "lon": -122.1215, "color": "#1f618d"}, {"country": "United States", "name": "Morgan Stanley", "city": "New York, New York", "lat": 40.7128, "lon": -74.006, "color": "#1f618d"}, {"country": "United States", "name": "Northrop Grumman", "city": "Falls Church, Virginia", "lat": 38.8823, "lon": -77.1711, "color": "#1f618d"}, {"country": "United States", "name": "Palantir Technologies", "city": "Denver, Colorado", "lat": 39.7392, "lon": -104.9903, "color": "#1f618d"}, {"country": "United States", "name": "Planet Labs", "city": "San Francisco, California", "lat": 37.7749, "lon": -122.4194, "color": "#1f618d"}, {"country": "United States", "name": "RTX (Raytheon) Corporation", "city": "Arlington, Virginia", "lat": 38.8816, "lon": -77.091, "color": "#1f618d"}, {"country": "United States", "name": "U.S. International Development Finance Corporation", "city": "Washington, D.C.", "lat": 38.9072, "lon": -77.0369, "color": "#1f618d"}, {"country": "United States", "name": "The Federal Reserve", "city": "Washington, D.C.", "lat": 38.9072, "lon": -77.0369, "color": "#1f618d"}];
-const map = L.map('map', {worldCopyJump:true, minZoom:2}).setView([25,20], 2);
-
-const standard = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
-});
-const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  maxZoom: 18, attribution: 'Tiles &copy; Esri'
-});
-const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-  maxZoom: 19, attribution: '&copy; OpenStreetMap & CARTO'
-});
-standard.addTo(map);
-L.control.layers({"Street map":standard,"Satellite":satellite}, null, {collapsed:true}).addTo(map);
-
-const clusters = L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:38});
-const markers = [];
-const byId = new Map();
-
-places.forEach((p,i) => {
-  const icon = L.divIcon({
-    className:'',
-    html:`<div style="width:16px;height:16px;border-radius:50%;background:${p.color};border:2px solid white;box-shadow:0 1px 4px #333"></div>`,
-    iconSize:[20,20], iconAnchor:[10,10]
-  });
-  const m = L.marker([p.lat,p.lon],{icon});
-  m.bindPopup(`<div class="popup"><h3>${p.name}</h3><p><b>${p.city}</b></p><p>${p.country}</p></div>`);
-  m._p = p; m._i=i; markers.push(m); byId.set(i,m); clusters.addLayer(m);
-});
-map.addLayer(clusters);
-
-const countries = [...new Set(places.map(p=>p.country))].sort();
-const countrySel=document.getElementById('country');
-countries.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;countrySel.appendChild(o);});
-const legend=document.getElementById('legend');
-countries.forEach(c=>{const s=document.createElement('span');s.innerHTML=`<i class="dot" style="background:${places.find(p=>p.country===c).color}"></i>${c}`;legend.appendChild(s);});
-
-function render(){
-  const q=document.getElementById('search').value.toLowerCase().trim();
-  const c=countrySel.value;
-  const filtered=places.filter(p=>(!q || (p.name+' '+p.city+' '+p.country).toLowerCase().includes(q)) && (!c || p.country===c));
-  clusters.clearLayers();
-  filtered.forEach(p=>clusters.addLayer(byId.get(places.indexOf(p))));
-  document.getElementById('stats').textContent=`Showing ${filtered.length} of ${places.length} organizations`;
-  const list=document.getElementById('list'); list.innerHTML='';
-  filtered.forEach(p=>{
-    const div=document.createElement('div'); div.className='item';
-    div.innerHTML=`<b>${p.name}</b><small>${p.city} · ${p.country}</small>`;
-    div.onclick=()=>{map.setView([p.lat,p.lon],Math.max(map.getZoom(),5));byId.get(places.indexOf(p)).openPopup();};
-    list.appendChild(div);
-  });
-}
-document.getElementById('search').addEventListener('input',render);
-countrySel.addEventListener('change',render);
-render();
-
-// Add a subtle label overlay when zoomed in.
-map.on('zoomend',()=>{ if(map.getZoom()>=5) labels.addTo(map); else map.removeLayer(labels); });
-</script>
-</body>
-</html>
+const nodes=[{"cat": "Defense-tech", "name": "GomSpace", "city": "Aalborg, Denmark", "lat": 57.0488, "lon": 9.9217, "rel": "Joint venture with STETMAN (UASAT) announced Apr. 2026 for sovereign satellite communications in Ukraine.", "status": "Documented", "src": "https://gomspace.com/danish-company-gomspace-and-ukrainian-company-stetman-launch-joint-venture-in-uk/"}, {"cat": "Defense-tech", "name": "STETMAN", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Ukrainian partner in the UASAT joint venture with GomSpace.", "status": "Documented", "src": "https://gomspace.com/danish-company-gomspace-and-ukrainian-company-stetman-launch-joint-venture-in-uk/"}, {"cat": "Defense-tech", "name": "Buntar Aerospace", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Raised $10.4M in March 2026; Axon Enterprise was lead investor.", "status": "Documented", "src": "https://buntar.com/en/briefing/buntar-raises-10mln-investments-with-axon-leading-investor"}, {"cat": "Defense-tech", "name": "Sine Engineering", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "URIF approved its first investment in Sine Engineering; Sine develops resilient UAV communications/navigation technology.", "status": "Documented", "src": "https://www.dfc.gov/media/press-releases/urif-announces-first-investment-strengthening-ukraines-security-and-unlocking"}, {"cat": "Defense-tech", "name": "Quantum Systems", "city": "Gilching, Germany", "lat": 48.107, "lon": 11.3, "rel": "German UAV/autonomy company with multiple Ukrainian joint ventures.", "status": "Documented", "src": "https://quantum-systems.com/news/quantum-systems-ukrainian-joint-ventures/"}, {"cat": "Defense-tech", "name": "Frontline Robotics", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Quantum Systems acquired a 10% stake in 2025, with an option to increase to 25%.", "status": "Documented", "src": "https://quantum-systems.com/us/wp-content/uploads/2025/08/20250716_PR_QS_Frontline-Strategic-Investment_EN.pdf"}, {"cat": "People / investors", "name": "Alex Karp", "city": "Denver, Colorado, USA", "lat": 39.7392, "lon": -104.9903, "rel": "Reuters reported in Sept. 2026 that Karp would be the first major investor in a new defense-tech company founded by Mykhailo Fedorov.", "status": "Documented", "src": "https://www.reuters.com/business/aerospace-defense/ukraines-fedorov-says-palantir-ceo-will-be-first-major-investor-new-defence-2026-09-01/"}, {"cat": "People / investors", "name": "Erik Prince", "city": "Austin, Texas, USA", "lat": 30.2672, "lon": -97.7431, "rel": "Publicly associated with Swarmer; current Swarmer materials identify Prince as non-executive chairman.", "status": "Documented association", "src": "https://investors.swarmer.com/"}, {"cat": "People / investors", "name": "Eric Schmidt", "city": "Menlo Park, California, USA", "lat": 37.453, "lon": -122.1817, "rel": "Public reporting identifies Schmidt as financier/adviser associated with White Stork, a military-drone project operating in the U.S. and Ukraine.", "status": "Documented association", "src": "https://www.forbes.com/sites/sarahemerson/2024/01/23/eric-schmidts-secret-white-stork-project-aims-to-build-ai-combat-drones/"}, {"cat": "People / investors", "name": "Peter Thiel", "city": "San Francisco, California, USA", "lat": 37.7749, "lon": -122.4194, "rel": "Co-founder of Palantir; publicly documented corporate connection to Palantir's Ukraine cooperation.", "status": "Documented corporate association", "src": "https://www.defensenews.com/global/europe/2026/01/21/ukraine-feeds-sensitive-military-data-to-palantir-ai-for-training/"}, {"cat": "Investment funds", "name": "D3 Venture Capital", "city": "New York, New York, USA", "lat": 40.7128, "lon": -74.006, "rel": "Listed by UCDI as an Investor Club member; also participated in a 2026 NATO Innovation Fund round.", "status": "Documented", "src": "https://www.linkedin.com/posts/defender-media_the-ukrainian-council-of-defence-industry-activity-7417281868552663041-Q-MA"}, {"cat": "Investment funds", "name": "Green Flag Ventures", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "UCDI Investor Club member; its site describes investment in Ukrainian defense, dual-use, AI and cyber technologies.", "status": "Documented", "src": "https://www.greenflag.vc/about"}, {"cat": "Investment funds", "name": "UA1 VC", "city": "United States", "lat": 38.9072, "lon": -77.0369, "rel": "UCDI Investor Club member; its site describes investment in defense technologies and a Ukraine-focused portfolio.", "status": "Documented", "src": "https://www.ua1.vc/"}, {"cat": "Investment funds", "name": "MITS Capital", "city": "United States", "lat": 38.9072, "lon": -77.0369, "rel": "UCDI Investor Club member; U.S.-based early-stage fund focused on Ukrainian defense tech.", "status": "Documented", "src": "https://mits.capital/mits-lightning-fund/"}, {"cat": "Investment funds", "name": "Darkstar VC", "city": "San Francisco, California, USA", "lat": 37.7749, "lon": -122.4194, "rel": "Listed by UCDI as an Investor Club member.", "status": "Documented", "src": "https://www.linkedin.com/posts/defender-media_the-ukrainian-council-of-defence-industry-activity-7417281868552663041-Q-MA"}, {"cat": "Investment funds", "name": "Defender Ventures", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Listed by UCDI as a member via Defence Builder & Defender Ventures.", "status": "Documented", "src": "https://www.linkedin.com/posts/defender-media_the-ukrainian-council-of-defence-industry-activity-7417281868552663041-Q-MA"}, {"cat": "Strategic companies", "name": "Palantir Technologies", "city": "Denver, Colorado, USA", "lat": 39.7392, "lon": -104.9903, "rel": "Palantir has cooperated with Ukraine; Defense News reported a Brave1-Palantir Dataroom for AI model testing with sensitive military data.", "status": "Documented", "src": "https://www.defensenews.com/global/europe/2026/01/21/ukraine-feeds-sensitive-military-data-to-palantir-ai-for-training/"}, {"cat": "Strategic companies", "name": "Axon Enterprise", "city": "Scottsdale, Arizona, USA", "lat": 33.4942, "lon": -111.9261, "rel": "Lead investor in Buntar Aerospace's $10.4M 2026 financing round.", "status": "Documented", "src": "https://buntar.com/en/briefing/buntar-raises-10mln-investments-with-axon-leading-investor"}, {"cat": "Strategic companies", "name": "Swarmer", "city": "Austin, Texas, USA", "lat": 30.2672, "lon": -97.7431, "rel": "Autonomy/drone company with operations in Ukraine, Poland and Estonia; Erik Prince is identified as non-executive chairman.", "status": "Documented association", "src": "https://investors.swarmer.com/"}, {"cat": "Institutional", "name": "BRAVE1", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Ukrainian defense-tech cluster co-founded by Ukrainian ministries and defense institutions.", "status": "Documented", "src": "https://brave1.gov.ua/en/"}, {"cat": "Institutional", "name": "U.S.-Ukraine Reconstruction Investment Fund (URIF)", "city": "Washington, D.C., USA", "lat": 38.9072, "lon": -77.0369, "rel": "Its first approved investment was in Sine Engineering in March 2026.", "status": "Documented", "src": "https://www.dfc.gov/media/press-releases/urif-announces-first-investment-strengthening-ukraines-security-and-unlocking"}, {"cat": "Institutional", "name": "Inzhur MilTech Fund", "city": "Kyiv, Ukraine", "lat": 50.4501, "lon": 30.5234, "rel": "Launched in Aug. 2026 to finance Ukrainian defense manufacturing; first asset was Vyriy Industries.", "status": "Documented", "src": "https://inventure.com.ua/en/news/ukraine/inzhur-launches-ukrainian-miltech-investment-fund-with-vyriy-industries-as-its-first-asset"}, {"cat": "Institutional", "name": "NATO Innovation Fund", "city": "Amsterdam, Netherlands", "lat": 52.3676, "lon": 4.9041, "rel": "NATO-backed venture fund; its management arm is hosted in the Netherlands and it co-led a 2026 TYTAN round.", "status": "Documented", "src": "https://www.nif.fund/news/the-nato-innovation-fund-co-leads-e30m-series-a-for-tytan-to-build-europes-next-generation-air-defence/"}, {"cat": "Institutional", "name": "U.S. Department of Defense / Starshield", "city": "Arlington, Virginia, USA", "lat": 38.8816, "lon": -77.091, "rel": "Included in the supplied list. This map does not infer a role in specific Ukrainian strikes.", "status": "Needs narrower sourcing", "src": "https://www.spaceforce.mil/"}, {"cat": "Institutional", "name": "Government of Poland", "city": "Warsaw, Poland", "lat": 52.2297, "lon": 21.0122, "rel": "Included in the supplied list as a Starlink-related state actor. The specific geofencing/strike connection is not established here.", "status": "Needs narrower sourcing", "src": "https://www.gov.pl/web/national-defence"}, {"cat": "Telecom / satellite", "name": "VEON / Kyivstar", "city": "Dubai / Kyiv", "lat": 25.2048, "lon": 55.2708, "rel": "Kyivstar launched Starlink Direct to Cell in Ukraine and later expanded Starlink connectivity/resale arrangements.", "status": "Documented", "src": "https://www.veon.com/newsroom/press-releases/kyivstar-launches-starlink-direct-to-cell-satellite-connectivity-in-ukraine"}, {"cat": "Telecom / satellite", "name": "Starlink / SpaceX", "city": "Hawthorne, California, USA", "lat": 33.9186, "lon": -118.352, "rel": "Starlink provides satellite connectivity; Kyivstar publicly launched Direct to Cell in Ukraine. This map does not assert control of individual drone missions or geofencing decisions.", "status": "Documented service; causal claim unverified", "src": "https://www.veon.com/newsroom/press-releases/kyivstar-launches-starlink-direct-to-cell-satellite-connectivity-in-ukraine"}], colors={"Defense-tech": "#c0392b", "People / investors": "#8e44ad", "Investment funds": "#2980b9", "Strategic companies": "#d35400", "Institutional": "#16a085", "Telecom / satellite": "#2c3e50"};
+const map=L.map('map',{worldCopyJump:true,minZoom:2}).setView([42,20],3);
+const street=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:18,attribution:'Tiles &copy; Esri'});
+L.control.layers({"Street map":street,"Satellite":sat}).addTo(map);
+const cluster=L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:38}), markers=[];
+nodes.forEach(p=>{const icon=L.divIcon({className:'',html:`<div style="width:16px;height:16px;border-radius:50%;background:${colors[p.cat]};border:2px solid white;box-shadow:0 1px 4px #333"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
+const m=L.marker([p.lat,p.lon],{icon});m.bindPopup(`<div class="popup"><h3>${p.name}</h3><p><b>${p.city}</b></p><p>${p.rel}</p><span class="badge">${p.status}</span><p><a href="${p.src}" target="_blank" rel="noopener">View source</a></p></div>`);markers.push(m);cluster.addLayer(m)});map.addLayer(cluster);
+const cats=[...new Set(nodes.map(n=>n.cat))].sort(), cat=document.getElementById('cat');
+cats.forEach(c=>{let o=document.createElement('option');o.value=c;o.textContent=c;cat.appendChild(o)});
+cats.forEach(c=>{let s=document.createElement('span');s.innerHTML=`<i class="dot" style="background:${colors[c]}"></i>${c}`;document.getElementById('legend').appendChild(s)});
+function render(){const q=document.getElementById('search').value.toLowerCase().trim(),c=cat.value,st=document.getElementById('status').value;
+const f=nodes.filter(p=>(!q||(p.name+' '+p.city+' '+p.rel).toLowerCase().includes(q))&&(!c||p.cat===c)&&(!st||p.status===st));
+cluster.clearLayers();f.forEach(p=>cluster.addLayer(markers[nodes.indexOf(p)]));document.getElementById('stats').textContent=`Showing ${f.length} of ${nodes.length} mapped entries`;
+const list=document.getElementById('list');list.innerHTML='';f.forEach(p=>{let d=document.createElement('div');d.className='item';d.innerHTML=`<b>${p.name}</b><small>${p.city} · ${p.cat} · ${p.status}</small>`;d.onclick=()=>{map.setView([p.lat,p.lon],Math.max(map.getZoom(),5));markers[nodes.indexOf(p)].openPopup()};list.appendChild(d)})}
+document.getElementById('search').addEventListener('input',render);cat.addEventListener('change',render);document.getElementById('status').addEventListener('change',render);render();
+</script></body></html>
